@@ -1,10 +1,21 @@
 import logging
 import textwrap
 from pathlib import Path
+from typing import Tuple
 
 from django.conf import settings
 from langchain import OpenAI
-from llama_index import GPTSimpleVectorIndex, LLMPredictor, ServiceContext
+from llama_index import (
+    # GPTSimpleVectorIndex, 
+    LLMPredictor, 
+    ServiceContext, 
+    VectorStoreIndex, 
+    load_index_from_storage, 
+    StorageContext,
+    KnowledgeGraphIndex,
+)
+from llama_index.storage.storage_context import StorageContext
+from llama_index.graph_stores import NebulaGraphStore
 
 from delphic.indexes.models import Collection
 
@@ -27,7 +38,7 @@ def format_source(source):
     return formatted_source
 
 
-async def load_collection_model(collection_id: str | int) -> GPTSimpleVectorIndex:
+async def load_collection_model(collection_id: str | int) -> Tuple[VectorStoreIndex, KnowledgeGraphIndex]:
     """
     Load the Collection model from cache or the database, and return the index.
 
@@ -53,29 +64,39 @@ async def load_collection_model(collection_id: str | int) -> GPTSimpleVectorInde
         logger.info("load_collection_model() - Setup local json index file")
 
         # Check if the JSON file exists
-        cache_dir = Path(settings.BASE_DIR) / "cache"
-        cache_file_path = cache_dir / f"model_{collection_id}.json"
-        if not cache_file_path.exists():
-            cache_dir.mkdir(parents=True, exist_ok=True)
-            with collection.model.open("rb") as model_file:
-                with cache_file_path.open("w+", encoding="utf-8") as cache_file:
-                    cache_file.write(model_file.read().decode("utf-8"))
+        # cache_dir = Path(settings.BASE_DIR) / "cache"
+        # cache_file_path = cache_dir / f"model_{collection_id}.json"
+        # if not cache_file_path.exists():
+        #     cache_dir.mkdir(parents=True, exist_ok=True)
+        #     with collection.model.open("rb") as model_file:
+        #         with cache_file_path.open("w+", encoding="utf-8") as cache_file:
+        #             cache_file.write(model_file.read().decode("utf-8"))
 
         # define LLM
         logger.info(
             f"load_collection_model() - Setup service context with tokens {settings.MAX_TOKENS} and "
             f"model {settings.MODEL_NAME}"
         )
-        llm_predictor = LLMPredictor(
-            llm=OpenAI(temperature=0, model_name="text-davinci-003", max_tokens=512)
-        )
-        service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor)
-
-        # Call GPTSimpleVectorIndex.load_from_disk
+        # llm_predictor = LLMPredictor(llm=OpenAI(temperature=0, model_name=settings.MODEL_NAME, max_tokens=settings.MAX_TOKENS))
+        # service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor, chunk_size_limit=512)
         logger.info("load_collection_model() - Load llama index")
-        index = GPTSimpleVectorIndex.load_from_disk(
-            cache_file_path, service_context=service_context
-        )
+
+        # rebuild storage context
+        vector_storage_context = StorageContext.from_defaults(persist_dir=f"./storage/{collection_id}/vectorindex")
+        # load index
+        # vector_index = load_index_from_storage(storage_context=vector_storage_context, service_context=service_context)
+        vector_index = load_index_from_storage(storage_context=vector_storage_context)
+
+        # 加载graphindex
+        space_name = "llamaindex"
+        edge_types, rel_prop_names = ["relationship"], ["relationship"] # default, could be omit if create from an empty kg
+        tags = ["entity"] 
+        new_graph_store = NebulaGraphStore(space_name=space_name, edge_types=edge_types, rel_prop_names=rel_prop_names, tags=tags)
+        # rebuild storage context
+        graph_storage_context = StorageContext.from_defaults(persist_dir=f"./storage/{collection_id}/graphindex", graph_store=new_graph_store)
+        # kg_index = load_index_from_storage(storage_context=graph_storage_context, service_context=service_context)
+        kg_index = load_index_from_storage(storage_context=graph_storage_context)
+
         logger.info(
             "load_collection_model() - Llamaindex loaded and ready for query..."
         )
@@ -86,7 +107,7 @@ async def load_collection_model(collection_id: str | int) -> GPTSimpleVectorInde
         )
         raise ValueError("No model exists for this collection!")
 
-    return index
+    return (vector_index, kg_index)
 
 
 async def query_collection(collection_id: str | int, query_str: str) -> str:

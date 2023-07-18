@@ -1,0 +1,29 @@
+# General
+# ------------------------------------------------------------------------------
+USE_DOCKER=yes
+IPYTHONDIR=/app/.ipython
+# Redis
+# ------------------------------------------------------------------------------
+REDIS_URL=redis://redis:6379/0
+
+# Celery
+# ------------------------------------------------------------------------------
+
+# Flower
+CELERY_FLOWER_USER=AbFgrzUdIweDSBYEiGuhipavkoTonmNo
+CELERY_FLOWER_PASSWORD=XdBJp2EnHZ5xQc2r3FSYjmTGbHiJp3wf5yWJnKloHwsrSLC3qfdoF4naZfwuZYBU
+
+# NLP / LLM
+# -----------------------------------------------------------------------------
+OPENAI_API_KEY="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"
+# OPENAI_API_KEY="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"
+MODEL_NAME=text-davinci-003
+MAX_TOKENS=512
+
+# nebulagraph
+NEBULA_USER="root"
+NEBULA_PASSWORD="nebula"
+NEBULA_ADDRESS="192.168.0.164:9669"
+
+# 关闭接口权限校验
+OPEN_ACCESS_MODE=True
