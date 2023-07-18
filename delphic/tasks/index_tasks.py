@@ -25,7 +25,7 @@ from delphic.indexes.models import Collection, CollectionStatus
 logger = logging.getLogger(__name__)
 
 # to do 需要更具文件大小设置，特别是构建graphindex极其耗时
-@celery_app.task(soft_time_limit=3000)
+@celery_app.task(soft_time_limit=36000)
 def create_index(collection_id):
     """
     Celery task to create a GPTSimpleVectorIndex for a given Collection object.
