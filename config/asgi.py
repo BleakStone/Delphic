@@ -24,6 +24,7 @@ from django.core.asgi import get_asgi_application  # noqa: E402
 from django.urls import re_path  # noqa: E402
 
 from config.api.websockets.queries import CollectionQueryConsumer  # noqa: E402
+from config.api.websockets.queries_kg import CollectionNebulaQueryConsumer
 
 # This allows easy placement of apps within the interior
 # delphic directory.
@@ -39,15 +40,33 @@ django_application = get_asgi_application()
 application = ProtocolTypeRouter(
     {
         "http": get_asgi_application(),
-        "websocket": TokenAuthMiddleware(
+        # "websocket": TokenAuthMiddleware(
+        #     URLRouter(
+        #         [
+        #             re_path(
+        #                 r"ws/collections/(?P<collection_id>\w+)/query/$",
+        #                 CollectionQueryConsumer.as_asgi(),
+        #             ),
+        #             re_path(
+        #                 r"ws/collections/(?P<graph_id>.+)/kgquery/$",
+        #                 CollectionNebulaQueryConsumer.as_asgi(),
+        #             ),
+        #         ]
+        #     )
+        # ),
+        # fix 取消token校验
+        "websocket": 
             URLRouter(
                 [
                     re_path(
                         r"ws/collections/(?P<collection_id>\w+)/query/$",
                         CollectionQueryConsumer.as_asgi(),
                     ),
+                    re_path(
+                        r"ws/collections/(?P<graph_id>.+)/kgquery/$",
+                        CollectionNebulaQueryConsumer.as_asgi(),
+                    ),
                 ]
-            )
         ),
     }
 )

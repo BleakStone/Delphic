@@ -22,7 +22,7 @@ class IndexesConfig(AppConfig):
             from django.conf import settings
 
             llm_predictor = LLMPredictor(llm=OpenAI(temperature=0, model_name=settings.MODEL_NAME, max_tokens=settings.MAX_TOKENS))
-            service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor, chunk_size_limit=512)
+            service_context = ServiceContext.from_defaults(llm_predictor=llm_predictor, chunk_size=512)
             logger.info(f"设置 global_service_context")
             set_global_service_context(service_context)
         except ImportError:

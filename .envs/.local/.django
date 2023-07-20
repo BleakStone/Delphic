@@ -4,7 +4,9 @@ USE_DOCKER=yes
 IPYTHONDIR=/app/.ipython
 # Redis
 # ------------------------------------------------------------------------------
-REDIS_URL=redis://redis:6379/0
+# REDIS_URL=redis://redis:6379/0
+# 本地redis
+REDIS_URL=redis://:123456@192.168.0.164:12000
 
 # Celery
 # ------------------------------------------------------------------------------
@@ -15,15 +17,18 @@ CELERY_FLOWER_PASSWORD=XdBJp2EnHZ5xQc2r3FSYjmTGbHiJp3wf5yWJnKloHwsrSLC3qfdoF4naZ
 
 # NLP / LLM
 # -----------------------------------------------------------------------------
-OPENAI_API_KEY="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"
-# OPENAI_API_KEY="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"
+# OPENAI_API_KEY="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"
+OPENAI_API_KEY="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"
+
 MODEL_NAME=text-davinci-003
 MAX_TOKENS=512
 
-# nebulagraph
+# 服务器nebulagraph
 NEBULA_USER="root"
 NEBULA_PASSWORD="nebula"
-NEBULA_ADDRESS="192.168.0.164:9669"
+NEBULA_ADDRESS="118.195.234.204:9669"
+# 本地nebulagraph
+# NEBULA_ADDRESS="192.168.0.164:9669"
 
 # 关闭接口权限校验
 OPEN_ACCESS_MODE=True

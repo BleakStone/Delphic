@@ -338,3 +338,6 @@ delphic/media/*
 
 ### Models for Question Answering
 cache/*
+
+# index持久化文件
+storage

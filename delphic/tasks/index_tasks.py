@@ -97,7 +97,7 @@ def create_index(collection_id):
                     edge_types=edge_types,
                     rel_prop_names=rel_prop_names,
                     tags=tags,
-                    include_embeddings=True,
+                    include_embeddings=False, # 减少emeddding接口的调用防止 rate limit 和token过度消耗
                 )
                 kg_index.storage_context.persist(persist_dir=f"./storage/{collection_id}/graphindex")
                 logger.info(f"构建KnowledgeGraphIndex完成")

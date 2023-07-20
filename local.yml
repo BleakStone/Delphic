@@ -13,7 +13,7 @@ services:
     container_name: delphic_local_django
     depends_on:
       - postgres
-      - redis
+      # - redis
     volumes:
       - .:/app:z
     env_file:
@@ -49,16 +49,16 @@ services:
     env_file:
       - ./.envs/.local/.postgres
 
-  redis:
-    image: redis:6
-    container_name: delphic_local_redis
+  # redis:
+  #   image: redis:6
+  #   container_name: delphic_local_redis
 
   celeryworker:
     <<: *django
     image: delphic_local_celeryworker
     container_name: delphic_local_celeryworker
     depends_on:
-      - redis
+      # - redis
       - postgres
     ports: []
     command: /start-celeryworker
@@ -68,7 +68,7 @@ services:
     image: delphic_local_celerybeat
     container_name: delphic_local_celerybeat
     depends_on:
-      - redis
+      # - redis
       - postgres
     ports: []
     command: /start-celerybeat
